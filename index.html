@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daily Project Log</title>
+
+  <!-- ── REPLACE THIS WITH YOUR GOOGLE OAUTH CLIENT ID ── -->
+  <!-- See SETUP INSTRUCTIONS below the closing </html> tag -->
+  <meta name="google-client-id" content="889482797073-ujrluops3qtvlroatokuk972t0ptep6s.apps.googleusercontent.com" />
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f0f;
+      --bg2: #161a10;
+      --bg3: #1e2416;
+      --border: #2a3820;
+      --border2: #3a4a28;
+      --green: #7a9a50;
+      --green-light: #c8d4a0;
+      --green-dim: #5a6a4a;
+      --green-muted: #3a4a2a;
+      --text: #e8e3d8;
+      --text-dim: #9aaa80;
+      --text-muted: #6a7a50;
+      --red: #aa6060;
+      --red-bg: #2e1010;
+      --red-border: #5a2020;
+    }
+
+    html, body { height: 100%; background: var(--bg); }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    #root { min-height: 100vh; }
+
+    .app {
+      max-width: 660px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* ── Header ── */
+    .header { margin-bottom: 44px; }
+    .header-eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--green-dim);
+      margin-bottom: 6px;
+    }
+    .header-title {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--green-light);
+      letter-spacing: -.02em;
+    }
+    .header-date {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--green-muted);
+      margin-top: 6px;
+    }
+
+    /* ── Auth ── */
+    .auth-card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 36px;
+      text-align: center;
+    }
+    .auth-card h2 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 15px;
+      color: var(--green-light);
+      margin-bottom: 10px;
+    }
+    .auth-card p {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+    .auth-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 24px;
+      background: var(--bg3);
+      border: 1px solid var(--border2);
+      border-radius: 6px;
+      color: var(--green-light);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+    }
+    .auth-btn:hover { background: #2a3820; border-color: var(--green); }
+    .auth-btn svg { width: 18px; height: 18px; }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 38px;
+    }
+    .tab {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 10px 22px 10px 0;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--green-muted);
+      position: relative;
+      transition: color .15s;
+    }
+    .tab.active { color: var(--green-light); }
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0; right: 22px;
+      height: 2px;
+      background: var(--green);
+    }
+    .tab:hover { color: var(--green); }
+
+    /* ── Form fields ── */
+    .field { margin-bottom: 26px; }
+    .field label {
+      display: block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--green-dim);
+      margin-bottom: 9px;
+    }
+    .field input,
+    .field textarea,
+    .field select {
+      width: 100%;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text);
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 15px;
+      padding: 11px 13px;
+      outline: none;
+      transition: border-color .15s;
+      -webkit-appearance: none;
+    }
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus { border-color: #5a7a38; }
+    .field textarea { resize: vertical; min-height: 110px; line-height: 1.6; }
+
+    .hours-row { display: flex; gap: 10px; align-items: center; }
+    .hours-row input {
+      width: 96px;
+      text-align: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 20px;
+    }
+    .steppers { display: flex; flex-direction: column; gap: 4px; }
+    .step-btn {
+      width: 28px; height: 22px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      color: var(--green);
+      font-size: 12px;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .1s;
+      line-height: 1;
+    }
+    .step-btn:hover { background: var(--border); }
+    .hrs-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      color: var(--green-dim);
+    }
+
+    /* ── Buttons ── */
+    .primary-btn {
+      width: 100%;
+      padding: 14px;
+      background: #3a5a20;
+      border: 1px solid #4a7a28;
+      border-radius: 4px;
+      color: var(--green-light);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .15s, transform .1s;
+      margin-top: 6px;
+    }
+    .primary-btn:hover { background: #4a7a28; }
+    .primary-btn:active { transform: scale(.99); }
+    .primary-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+    .secondary-btn {
+      padding: 11px 20px;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--green);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .15s;
+      white-space: nowrap;
+    }
+    .secondary-btn:hover { background: var(--border); }
+    .secondary-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ── Status messages ── */
+    .msg {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      line-height: 1.55;
+      padding: 12px 14px;
+      border-radius: 4px;
+      margin-top: 16px;
+    }
+    .msg.success { background: #1a2e10; border: 1px solid #3a5a20; color: var(--green); }
+    .msg.error   { background: var(--red-bg); border: 1px solid var(--red-border); color: var(--red); }
+    .msg.info    { background: var(--bg2); border: 1px solid var(--border); color: var(--text-muted); }
+
+    /* ── Summary ── */
+    .summary-top {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      margin-bottom: 30px;
+    }
+    .summary-top .field { flex: 1; margin-bottom: 0; }
+
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 22px 24px;
+      margin-bottom: 16px;
+    }
+    .card-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--green-dim);
+      margin-bottom: 14px;
+    }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--bg3);
+    }
+    .stat-row:last-child { border-bottom: none; }
+    .stat-name {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--green-dim);
+    }
+    .stat-val {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--green-light);
+    }
+    .narrative {
+      font-size: 14px;
+      line-height: 1.75;
+      color: var(--text-dim);
+      white-space: pre-wrap;
+    }
+
+    /* ── History ── */
+    .entry-row {
+      display: grid;
+      grid-template-columns: 110px 42px 1fr;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--bg3);
+      align-items: start;
+    }
+    .entry-row:last-child { border-bottom: none; }
+    .entry-date {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--green-dim);
+      padding-top: 2px;
+    }
+    .entry-hrs {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      color: var(--green);
+      font-weight: 600;
+      padding-top: 1px;
+    }
+    .entry-notes { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+
+    /* ── Spinner ── */
+    .spin {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border: 2px solid var(--green-muted);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: rot .7s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    @keyframes rot { to { transform: rotate(360deg); } }
+
+    /* ── User pill ── */
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .avatar {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: var(--green-muted);
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--green-light);
+      flex-shrink: 0;
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .user-name { font-size: 12px; color: var(--text-muted); }
+    .sign-out {
+      margin-left: auto;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--green-dim);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 3px;
+      transition: color .15s;
+    }
+    .sign-out:hover { color: var(--red); }
+
+    .setup-banner {
+      background: #1c1a0e;
+      border: 1px solid #3a3010;
+      border-radius: 6px;
+      padding: 16px 18px;
+      margin-bottom: 28px;
+      font-size: 13px;
+      color: #a89a60;
+      line-height: 1.6;
+    }
+    .setup-banner strong { color: #c8b860; }
+    .setup-banner code {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      background: #2a2810;
+      padding: 1px 5px;
+      border-radius: 3px;
+    }
+
+    .placeholder-msg {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--green-muted);
+      padding: 20px 0;
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef } = React;
+
+// ── Config ─────────────────────────────────────────────────────────
+const CLIENT_ID = document.querySelector('meta[name="google-client-id"]').content;
+const SCOPES = "https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file";
+const SHEET_TITLE = "Daily Project Log";
+const TAB_NAME = "Log";
+
+// ── Helpers ────────────────────────────────────────────────────────
+function todayISO() {
+  const d = new Date();
+  return [d.getFullYear(), String(d.getMonth()+1).padStart(2,'0'), String(d.getDate()).padStart(2,'0')].join('-');
+}
+function todayFull() {
+  return new Date().toLocaleDateString('en-GB', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+}
+function monthOptions() {
+  const opts = []; const now = new Date();
+  for (let i = 0; i < 18; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const val = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    const label = d.toLocaleDateString('en-GB', { month:'long', year:'numeric' });
+    opts.push({ val, label });
+  }
+  return opts;
+}
+
+// ── Google Sheets API ──────────────────────────────────────────────
+async function sheetsRequest(token, method, path, body) {
+  const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets${path}`, {
+    method,
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || res.statusText); }
+  return res.json();
+}
+
+async function driveRequest(token, method, path, body) {
+  const res = await fetch(`https://www.googleapis.com/drive/v3${path}`, {
+    method,
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || res.statusText); }
+  return res.json();
+}
+
+async function findOrCreateSheet(token) {
+  // Search for existing sheet
+  const q = encodeURIComponent(`name='${SHEET_TITLE}' and mimeType='application/vnd.google-apps.spreadsheet' and trashed=false`);
+  const list = await driveRequest(token, 'GET', `/files?q=${q}&fields=files(id,name)`);
+  if (list.files && list.files.length > 0) return list.files[0].id;
+
+  // Create new sheet
+  const sheet = await sheetsRequest(token, 'POST', '', {
+    properties: { title: SHEET_TITLE },
+    sheets: [{ properties: { title: TAB_NAME } }],
+  });
+  const id = sheet.spreadsheetId;
+
+  // Write header row
+  await sheetsRequest(token, 'PUT', `/${id}/values/${TAB_NAME}!A1:D1?valueInputOption=RAW`, {
+    values: [['Date', 'Project', 'Hours', 'Notes']],
+  });
+  return id;
+}
+
+async function appendRow(token, sheetId, row) {
+  await sheetsRequest(token, 'POST', `/${sheetId}/values/${TAB_NAME}!A:D:append?valueInputOption=RAW&insertDataOption=INSERT_ROWS`, {
+    values: [row],
+  });
+}
+
+async function readAllRows(token, sheetId) {
+  const res = await sheetsRequest(token, 'GET', `/${sheetId}/values/${TAB_NAME}!A:D`);
+  const rows = res.values || [];
+  return rows.slice(1); // skip header
+}
+
+// ── Main App ───────────────────────────────────────────────────────
+function App() {
+  const [token, setToken] = useState(null);
+  const [user, setUser] = useState(null);
+  const [sheetId, setSheetId] = useState(() => localStorage.getItem('logSheetId') || null);
+  const [tab, setTab] = useState('log');
+  const clientRef = useRef(null);
+
+  // Form state
+  const [project, setProject] = useState(() => localStorage.getItem('logProject') || '');
+  const [hours, setHours] = useState(1);
+  const [notes, setNotes] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [saveMsg, setSaveMsg] = useState(null);
+
+  // Summary state
+  const months = monthOptions();
+  const [selMonth, setSelMonth] = useState(months[0].val);
+  const [summaryData, setSummaryData] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [summaryMsg, setSummaryMsg] = useState(null);
+
+  // History state
+  const [historyRows, setHistoryRows] = useState(null);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+  const isConfigured = !CLIENT_ID.startsWith('YOUR_CLIENT_ID');
+
+  useEffect(() => {
+    if (!isConfigured) return;
+    const interval = setInterval(() => {
+      if (window.google?.accounts?.oauth2) {
+        clearInterval(interval);
+        clientRef.current = window.google.accounts.oauth2.initTokenClient({
+          client_id: CLIENT_ID,
+          scope: SCOPES,
+          callback: (resp) => {
+            if (resp.error) return;
+            setToken(resp.access_token);
+          },
+        });
+      }
+    }, 200);
+    return () => clearInterval(interval);
+  }, [isConfigured]);
+
+  useEffect(() => {
+    if (project) localStorage.setItem('logProject', project);
+  }, [project]);
+
+  useEffect(() => {
+    if (sheetId) localStorage.setItem('logSheetId', sheetId);
+  }, [sheetId]);
+
+  function signIn() { clientRef.current?.requestAccessToken(); }
+  function signOut() { setToken(null); setUser(null); }
+
+  function adjustHours(d) {
+    setHours(h => Math.max(0.5, Math.min(16, +((h + d).toFixed(1)))));
+  }
+
+  async function getSheet() {
+    if (sheetId) return sheetId;
+    const id = await findOrCreateSheet(token);
+    setSheetId(id);
+    return id;
+  }
+
+  async function handleSave() {
+    if (!project.trim()) { setSaveMsg({ type:'error', text:'Enter a project name.' }); return; }
+    if (!notes.trim())   { setSaveMsg({ type:'error', text:'Describe what you worked on.' }); return; }
+    setSaving(true); setSaveMsg({ type:'info', text:'Saving…' });
+    try {
+      const id = await getSheet();
+      await appendRow(token, id, [todayISO(), project.trim(), hours, notes.trim()]);
+      setSaveMsg({ type:'success', text:`✓ Saved — ${todayISO()} · ${hours}h · ${project.trim()}` });
+      setNotes('');
+    } catch(e) {
+      setSaveMsg({ type:'error', text:`Error: ${e.message}` });
+    } finally { setSaving(false); }
+  }
+
+  async function handleSummary() {
+    if (!project.trim()) { setSummaryMsg({ type:'error', text:'Set a project name in the Log tab.' }); return; }
+    setSummaryLoading(true); setSummaryData(null); setSummaryMsg(null);
+    try {
+      const id = await getSheet();
+      const rows = await readAllRows(token, id);
+      const filtered = rows.filter(r => r[0]?.startsWith(selMonth) && r[1]?.toLowerCase() === project.trim().toLowerCase());
+      if (filtered.length === 0) {
+        setSummaryMsg({ type:'info', text:'No entries found for this project/month.' });
+      } else {
+        const totalHours = filtered.reduce((s, r) => s + (parseFloat(r[2]) || 0), 0);
+        const days = new Set(filtered.map(r => r[0])).size;
+        const avg = +(totalHours / filtered.length).toFixed(1);
+        setSummaryData({ totalHours: +totalHours.toFixed(1), days, avg, entries: filtered });
+      }
+    } catch(e) {
+      setSummaryMsg({ type:'error', text:`Error: ${e.message}` });
+    } finally { setSummaryLoading(false); }
+  }
+
+  async function handleHistory() {
+    setHistoryLoading(true); setHistoryRows(null);
+    try {
+      const id = await getSheet();
+      const rows = await readAllRows(token, id);
+      const filtered = rows
+        .filter(r => !project.trim() || r[1]?.toLowerCase() === project.trim().toLowerCase())
+        .reverse()
+        .slice(0, 40);
+      setHistoryRows(filtered);
+    } catch(e) {
+      setHistoryRows([]);
+    } finally { setHistoryLoading(false); }
+  }
+
+  // ── Not configured ──────────────────────────────────────────────
+  if (!isConfigured) return (
+    <div className="app">
+      <div className="header">
+        <div className="header-eyebrow">Setup Required</div>
+        <div className="header-title">Daily Project Log</div>
+      </div>
+      <div className="setup-banner">
+        <strong>One-time setup needed.</strong> Open this HTML file in a text editor and replace <code>889482797073-ujrluops3qtvlroatokuk972t0ptep6s.apps.googleusercontent.com</code> with your Google OAuth Client ID.<br/><br/>
+        See the instructions at the bottom of this file for step-by-step guidance.
+      </div>
+    </div>
+  );
+
+  // ── Not signed in ───────────────────────────────────────────────
+  if (!token) return (
+    <div className="app">
+      <div className="header">
+        <div className="header-eyebrow">Work Log</div>
+        <div className="header-title">Daily Project Log</div>
+        <div className="header-date">{todayFull()}</div>
+      </div>
+      <div className="auth-card">
+        <h2>Connect Google Account</h2>
+        <p>Sign in to read and write your Google Sheet.<br/>Your data stays in your own Drive.</p>
+        <button className="auth-btn" onClick={signIn}>
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          Sign in with Google
+        </button>
+      </div>
+    </div>
+  );
+
+  // ── Main UI ─────────────────────────────────────────────────────
+  return (
+    <div className="app">
+      <div className="header">
+        <div className="header-eyebrow">Work Log</div>
+        <div className="header-title">Daily Project Log</div>
+        <div className="header-date">{todayFull()}</div>
+        <div className="user-pill">
+          <div className="avatar">✓</div>
+          <span className="user-name">Connected to Google Drive</span>
+          <button className="sign-out" onClick={signOut}>Sign out</button>
+        </div>
+      </div>
+
+      <div className="tabs">
+        {['log','summary','history'].map(t => (
+          <button key={t} className={`tab ${tab===t?'active':''}`}
+            onClick={() => { setTab(t); if(t==='history') handleHistory(); }}>
+            {t.charAt(0).toUpperCase()+t.slice(1)}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Log Tab ── */}
+      {tab === 'log' && (
+        <div>
+          <div className="field">
+            <label>Project Name</label>
+            <input value={project} onChange={e=>setProject(e.target.value)} placeholder="e.g. Iron-deficiency study" />
+          </div>
+          <div className="field">
+            <label>Hours Worked Today</label>
+            <div className="hours-row">
+              <input type="number" value={hours} min={0.5} max={16} step={0.5}
+                onChange={e => setHours(parseFloat(e.target.value)||0)} />
+              <div className="steppers">
+                <button className="step-btn" onClick={()=>adjustHours(0.5)}>▲</button>
+                <button className="step-btn" onClick={()=>adjustHours(-0.5)}>▼</button>
+              </div>
+              <span className="hrs-label">hrs</span>
+            </div>
+          </div>
+          <div className="field">
+            <label>What did you do today?</label>
+            <textarea value={notes} onChange={e=>setNotes(e.target.value)}
+              placeholder="Describe your progress, tasks completed, blockers…" />
+          </div>
+          <button className="primary-btn" onClick={handleSave} disabled={saving}>
+            {saving ? <><span className="spin"/>Saving…</> : '→  Save to Google Sheets'}
+          </button>
+          {saveMsg && <div className={`msg ${saveMsg.type}`}>{saveMsg.text}</div>}
+        </div>
+      )}
+
+      {/* ── Summary Tab ── */}
+      {tab === 'summary' && (
+        <div>
+          <div className="summary-top">
+            <div className="field">
+              <label>Month</label>
+              <select value={selMonth} onChange={e=>setSelMonth(e.target.value)}>
+                {months.map(m => <option key={m.val} value={m.val}>{m.label}</option>)}
+              </select>
+            </div>
+            <button className="secondary-btn" onClick={handleSummary} disabled={summaryLoading}>
+              {summaryLoading ? <><span className="spin"/>Loading…</> : 'Load'}
+            </button>
+          </div>
+
+          {summaryMsg && <div className={`msg ${summaryMsg.type}`}>{summaryMsg.text}</div>}
+
+          {summaryData && (
+            <>
+              <div className="card">
+                <div className="card-label">
+                  {months.find(m=>m.val===selMonth)?.label} — {project}
+                </div>
+                <div className="stat-row">
+                  <span className="stat-name">Total hours logged</span>
+                  <span className="stat-val">{summaryData.totalHours}h</span>
+                </div>
+                <div className="stat-row">
+                  <span className="stat-name">Days with entries</span>
+                  <span className="stat-val">{summaryData.days}</span>
+                </div>
+                <div className="stat-row">
+                  <span className="stat-name">Average per entry</span>
+                  <span className="stat-val">{summaryData.avg}h</span>
+                </div>
+              </div>
+
+              <div className="card">
+                <div className="card-label">All entries this month</div>
+                {summaryData.entries.map((r,i) => (
+                  <div className="entry-row" key={i}>
+                    <span className="entry-date">{r[0]}</span>
+                    <span className="entry-hrs">{r[2]}h</span>
+                    <span className="entry-notes">{r[3]}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+
+          {!summaryData && !summaryMsg && !summaryLoading && (
+            <p className="placeholder-msg">Select a month and press Load.</p>
+          )}
+        </div>
+      )}
+
+      {/* ── History Tab ── */}
+      {tab === 'history' && (
+        <div>
+          {historyLoading && <p className="placeholder-msg"><span className="spin"/>Loading recent entries…</p>}
+          {historyRows && historyRows.length === 0 && (
+            <p className="placeholder-msg">No entries found.</p>
+          )}
+          {historyRows && historyRows.length > 0 && (
+            <div className="card">
+              <div className="card-label">Last {historyRows.length} entries{project ? ` — ${project}` : ''}</div>
+              {historyRows.map((r,i) => (
+                <div className="entry-row" key={i}>
+                  <span className="entry-date">{r[0]}</span>
+                  <span className="entry-hrs">{r[2]}h</span>
+                  <span className="entry-notes">{r[3]}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+<!--
+╔══════════════════════════════════════════════════════════════════════╗
+║                     SETUP INSTRUCTIONS                              ║
+╠══════════════════════════════════════════════════════════════════════╣
+║                                                                      ║
+║  1. Go to https://console.cloud.google.com                           ║
+║  2. Create a new project (or use an existing one)                    ║
+║  3. Enable these APIs:                                               ║
+║       • Google Sheets API                                            ║
+║       • Google Drive API                                             ║
+║  4. Go to APIs & Services → Credentials                              ║
+║  5. Click "Create Credentials" → OAuth client ID                     ║
+║  6. Application type: Web application                                ║
+║  7. Authorised JavaScript origins:                                   ║
+║       Add: null  (for local file:// access)                          ║
+║       OR if you host it: https://yourdomain.com                      ║
+║  8. Copy the Client ID (ends in .apps.googleusercontent.com)         ║
+║  9. Open this file in a text editor                                  ║
+║ 10. Replace 889482797073-ujrluops3qtvlroatokuk972t0ptep6s.apps.googleusercontent.com           ║
+║     on line ~12 with your actual Client ID                           ║
+║ 11. Save and open in Chrome or Edge                                  ║
+║                                                                      ║
+║  NOTE: For local file:// use, you may need to add "null" as an       ║
+║  authorised origin in the Google Cloud Console.                      ║
+║  Alternatively, serve it with: npx serve .                           ║
+║  and add http://localhost:3000 as an authorised origin.              ║
+║                                                                      ║
+╚══════════════════════════════════════════════════════════════════════╝
+-->
+</body>
+</html>
